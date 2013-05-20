@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<<<<<<< HEAD
+	<head>
+=======
+  <head>
+>>>>>>> 2dcc0f61902a25258c257b644b82730f56401d86
+		<meta charset="utf-8" />
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+		<title>supersalty.us</title>
+		<meta name="description" content="variety." />
+		<meta name="author" content="Bobby Vicidomini" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		
+		<style type="text/css">
+			html, body {
+				position: relative;
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				font-family:Times;
+				font-size: 14px;
+				color: #393a37;
+			}
+			
+			a {
+				text-decoration: none;
+				color: #393A37;
+			} a:hover {
+				text-decoration: underline;
+			}
+
+			p {
+				color: #393A37;
+			}
+			
+			#clickme {
+				position: absolute;
+				font-size: 12px;
+				
+				width: 50px;
+				bottom: 4px;
+				left: 50%;
+				margin-left: 16px;
+			}
+			
+			#ss-canvas-container {
+				width: 366px;
+				margin: 100px auto 0;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="clickme"><p>click image to change color</p></div>
+		<div id="ss-canvas-container">
+			<canvas id="ss-logo-canvas" width="366" height="100"></canvas>
+		</div>
+		
+		<script type="text/javascript">
+		
+		var logoPrefix = "imgs/";
+		var logos = [
+			["logo.png", "logo-extension.png"],
+			["logo2.png", "logo-extension2.png"],
+			["logo3.png", "logo-extension3.png"],
+			["logo4.png", "logo-extension4.png"],
+			["logo5.png", "logo-extension5.png"],
+			["logo6.png", "logo-extension6.png"],
+			["logo7.png", "logo-extension7.png"],
+		];
+		
+		var logoIndex = 0;
+		var canvas = document.getElementById( "ss-logo-canvas" );
+		var ctx = canvas.getContext( "2d" );
+		
+		var img = new Image();
+		var imgExt = new Image();
+		
+		img.onload = function(e) {
+			imgExt.onload = function(e) {
+				img.onload = undefined;
+				imgExt.onload = undefined;
+				(function animloop(){
+					render();
+					requestAnimFrame( animloop, canvas );
+			    })();
+			}
+			imgExt.src = logoPrefix + logos[ logoIndex ][1];
+		}
+		img.src = logoPrefix + logos[ logoIndex ][0];
+		
+		// shim layer with setTimeout fallback
+		window.requestAnimFrame = ( function(){
+			return	window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					window.oRequestAnimationFrame ||
+					window.msRequestAnimationFrame ||
+					function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ canvas ) {
+						window.setTimeout(callback, 1000 / 60);
+					};
+		})();
+		
+		var startTime = undefined;
+		var canvas = document.getElementById("ss-logo-canvas");
+		var mx = -10;//Math.random() *window.innerWidth;
+		var my = Math.random() *window.innerHeight;
+		var rad = 150;
+		var app = 0;
+		
+		function render( time ) {
+			if ( time === undefined )
+				time = Date.now();
+			if ( startTime === undefined )
+				startTime = time;
+			
+			canvas.height = window.innerHeight - canvas.offsetTop;
+			
+			ctx.clearRect( 0, 0, canvas.width, canvas.height );
+			ctx.drawImage( img, 0, 0 );
+			var logoHeight = 283;
+			while ( logoHeight < canvas.height ) {
+				ctx.drawImage( imgExt, 0, logoHeight );
+				logoHeight += 1;
+			}
+			
+			my += 5;
+			
+			//mx += 5;
+			//my = window.innerHeight;
+			//rad *= 0.99;
+			//rad = Math.random() * 0.01;
+			
+			if (rad < 0.14) {
+				app = 1.001;
+			} else if (rad > 0.16) {
+				app = 0.999;
+			}
+			
+			//rad *= app;
+			
+			ctx.putImageData( Filters.filterImage( Filters.brightnessCircle, ctx.getImageData( 0, 0, canvas.width, canvas.height ), rad), 0, 0);
+		}
+		
+		/*document.onmousemove = function(e) {
+			//mx = e.pageX - canvas.offsetLeft;
+			//my = e.pageY - canvas.offsetTop;
+		}*/
+		
+		canvas.onmousedown = function(e) {
+			logoIndex++;
+			if (logoIndex == logos.length) logoIndex = 0;
+			img.src = logoPrefix + logos[ logoIndex ][0];
+			imgExt.src = logoPrefix + logos[ logoIndex ][1];
+		}
+		
+	    Filters = {};
+	    
+		Filters.filterImage = function( filter, image, var_args ) {
+			var args = [ image ];
+			for ( var i = 2; i < arguments.length; i++ ) {
+				args.push( arguments[ i ] );
+			}
+			return filter.apply(null, args);
+		};
+		
+		Filters.brightnessCircle = function( pixels, radius ) {
+			var pos = 0; // index position into imagedata array
+			var xoff = mx;
+			var yoff = my;
+			// walk left-to-right, top-to-bottom; it's the
+			// same as the ordering in the imagedata array:
+			for (y = 0; y < pixels.height; y++) {
+				for (x = 0; x < pixels.width; x++) {
+					// calculate sine based on distance
+					var x2 = x - xoff;
+					var y2 = y - yoff;
+					var d = Math.sqrt(x2*x2 + y2*y2);
+					//var d = x2*x2+y2*y2;
+					var t = Math.sin(d/radius);
+			
+					// calculate RGB values based on sine
+					pixels.data[pos++] += -100 + (t * 100);
+					pixels.data[pos++] += -150 + (t * 125);
+					pixels.data[pos++] += -125 + (t * 150);
+					pos++;
+				}
+			}
+    		return pixels;
+		};
+	    </script>
+	    
+	    <script type="text/javascript">
+		
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-35066225-1']);
+		  _gaq.push(['_setDomainName', 'supersalty.us']);
+		  _gaq.push(['_trackPageview']);
+		
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		
+		</script>
+		
+	</body>
+</html>
